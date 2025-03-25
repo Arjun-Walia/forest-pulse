@@ -2,6 +2,7 @@ import React from 'react';
 import { FaTwitter, FaDiscord, FaInstagram, FaGithub } from 'react-icons/fa';
 
 export default function Footer() {
+  
   const socialIcons = [
     { component: <FaTwitter />, link: "#" },
     { component: <FaDiscord />, link: "#" },
