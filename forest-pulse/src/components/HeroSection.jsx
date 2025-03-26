@@ -8,18 +8,15 @@ export default function HeroSection() {
   const textRef = useRef(null);
 
   useEffect(() => {
-    // Video load handler
     const handleLoadedData = () => {
       setVideoLoaded(true);
       
-      // Animate content fade in
       gsap.to(contentRef.current, {
         opacity: 1,
         duration: 1.5,
         ease: "power3.out"
       });
 
-      // Text animation
       gsap.from(textRef.current.children, {
         duration: 1.2,
         y: 40,
