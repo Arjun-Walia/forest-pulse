@@ -1,4 +1,9 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function HowItWorks() {
   const features = [
@@ -37,8 +42,56 @@ export default function HowItWorks() {
     },
   ];
 
+  const scrollContainer = useRef();
+
+  useGSAP(() => {
+    // Only kill triggers within our scope
+    const triggers = ScrollTrigger.getAll();
+    triggers.forEach(trigger => {
+      if (scrollContainer.current?.contains(trigger.trigger)) {
+        trigger.kill();
+      }
+    });
+
+    gsap.utils.toArray('.feature-text, .feature-image', scrollContainer.current).forEach((element, index) => {
+      const isEven = index % 2 === 0;
+      const xFrom = isEven ? -100 : 100;
+      const xTo = 0;
+      
+      gsap.fromTo(element, 
+        { x: xFrom, opacity: 0 },
+        {
+          x: xTo,
+          opacity: 1,
+          scrollTrigger: {
+            trigger: element,
+            start: "top 80%",
+            end: "top 30%",
+            scrub: 1,
+            markers: false,
+          }
+        }
+      );
+    });
+
+    gsap.fromTo('.cta-button', 
+      { y: 50, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        scrollTrigger: {
+          trigger: '.cta-button',
+          start: "top 85%",
+          end: "top 50%",
+          scrub: 1,
+        }
+      }
+    );
+
+  }, { scope: scrollContainer });
+
   return (
-    <section className="min-h-screen relative py-20" style={{ backgroundColor: '#121212' }}>
+    <section className="min-h-screen relative py-20" style={{ backgroundColor: '#121212' }} ref={scrollContainer}>
       <div className="container mx-auto px-4 h-full flex items-center">
         <div className="w-full max-w-7xl mx-auto">
           <header className="text-center mb-20">
@@ -57,7 +110,7 @@ export default function HowItWorks() {
                 className="grid md:grid-cols-2 gap-8 items-center"
                 style={{ minHeight: '60vh' }}
               >
-                <div className={`order-1 ${index % 2 === 0 ? 'md:order-1' : 'md:order-2'}`}>
+                <div className={`feature-text order-1 ${index % 2 === 0 ? 'md:order-1' : 'md:order-2'}`}>
                   <div 
                     className="p-8 rounded-2xl transition-all duration-300 hover:border-green-500"
                     style={{ 
@@ -99,7 +152,7 @@ export default function HowItWorks() {
                   </div>
                 </div>
 
-                <div className={`order-2 ${index % 2 === 0 ? 'md:order-2' : 'md:order-1'} h-full`}>
+                <div className={`feature-image order-2 ${index % 2 === 0 ? 'md:order-2' : 'md:order-1'} h-full`}>
                   <img 
                     src={feature.visual}
                     className="w-full h-96 object-cover rounded-2xl"
@@ -114,7 +167,7 @@ export default function HowItWorks() {
             ))}
           </div>
 
-          <div className="text-center mt-20">
+          <div className="text-center mt-20 cta-button">
             <button 
               className="px-8 py-4 rounded-xl text-lg font-bold transition-all hover:scale-105"
               style={{
