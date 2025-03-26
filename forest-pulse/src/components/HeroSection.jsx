@@ -1,8 +1,20 @@
 import React, { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function HeroSection() {
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [isTreeModalOpen, setIsTreeModalOpen] = useState(false);
+  const [isCommunityModalOpen, setIsCommunityModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    treeType: '',
+    location: '',
+    dedication: '',
+    name: '',
+    email: '',
+    interests: []
+  });
+  
   const videoRef = useRef(null);
   const contentRef = useRef(null);
   const textRef = useRef(null);
@@ -33,6 +45,41 @@ export default function HeroSection() {
     return () => video.removeEventListener('loadeddata', handleLoadedData);
   }, []);
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleInterestToggle = (interest) => {
+    setFormData(prev => {
+      if (prev.interests.includes(interest)) {
+        return {
+          ...prev,
+          interests: prev.interests.filter(item => item !== interest)
+        };
+      } else {
+        return {
+          ...prev,
+          interests: [...prev.interests, interest]
+        };
+      }
+    });
+  };
+
+  const handleTreeSubmit = (e) => {
+    e.preventDefault();
+    console.log('Planting virtual tree:', formData);
+    setIsTreeModalOpen(false);
+    setFormData(prev => ({ ...prev, treeType: '', location: '', dedication: '' }));
+  };
+
+  const handleCommunitySubmit = (e) => {
+    e.preventDefault();
+    console.log('Joining community:', formData);
+    setIsCommunityModalOpen(false);
+    setFormData(prev => ({ ...prev, name: '', email: '', interests: [] }));
+  };
+
   return (
     <section className="relative h-screen flex flex-col justify-center items-center p-6 text-center overflow-hidden">
       {/* Video Background */}
@@ -56,6 +103,199 @@ export default function HeroSection() {
           background: "linear-gradient(to bottom right, rgba(18, 18, 18, 0.9), rgba(30, 30, 30, 0.7))",
         }}
       />
+
+      {/* Plant Tree Modal */}
+      <AnimatePresence>
+        {isTreeModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}
+          >
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              className="w-full max-w-md rounded-2xl p-8"
+              style={{ backgroundColor: '#1E1E1E', border: '2px solid #32CD32' }}
+            >
+              <h3 className="text-2xl font-bold mb-6" style={{ color: '#32CD32' }}>
+                Plant Your Virtual Tree
+              </h3>
+              <form onSubmit={handleTreeSubmit}>
+                <div className="space-y-4 mb-6">
+                  <div>
+                    <label className="block mb-2" style={{ color: '#EDEDED' }}>Tree Type</label>
+                    <select
+                      name="treeType"
+                      value={formData.treeType}
+                      onChange={handleInputChange}
+                      className="w-full p-3 rounded-lg"
+                      style={{ backgroundColor: '#121212', color: '#EDEDED', border: '1px solid #32CD32' }}
+                      required
+                    >
+                      <option value="">Select a tree</option>
+                      <option value="Oak">Oak</option>
+                      <option value="Maple">Maple</option>
+                      <option value="Pine">Pine</option>
+                      <option value="Redwood">Redwood</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block mb-2" style={{ color: '#EDEDED' }}>Location</label>
+                    <input
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleInputChange}
+                      placeholder="City, Country"
+                      className="w-full p-3 rounded-lg"
+                      style={{ backgroundColor: '#121212', color: '#EDEDED', border: '1px solid #32CD32' }}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-2" style={{ color: '#EDEDED' }}>Dedication (Optional)</label>
+                    <textarea
+                      name="dedication"
+                      value={formData.dedication}
+                      onChange={handleInputChange}
+                      placeholder="Dedicate this tree to someone special"
+                      className="w-full p-3 rounded-lg"
+                      style={{ backgroundColor: '#121212', color: '#EDEDED', border: '1px solid #32CD32', minHeight: '100px' }}
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsTreeModalOpen(false)}
+                    className="flex-1 py-3 rounded-lg font-bold"
+                    style={{ 
+                      backgroundColor: 'transparent',
+                      color: '#32CD32',
+                      border: '2px solid #32CD32'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-3 rounded-lg font-bold"
+                    style={{ 
+                      backgroundColor: '#32CD32',
+                      color: '#121212'
+                    }}
+                  >
+                    Plant Tree
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Join Community Modal */}
+      <AnimatePresence>
+        {isCommunityModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}
+          >
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              className="w-full max-w-md rounded-2xl p-8"
+              style={{ backgroundColor: '#1E1E1E', border: '2px solid #32CD32' }}
+            >
+              <h3 className="text-2xl font-bold mb-6" style={{ color: '#32CD32' }}>
+                Join Our Community
+              </h3>
+              <form onSubmit={handleCommunitySubmit}>
+                <div className="space-y-4 mb-6">
+                  <div>
+                    <label className="block mb-2" style={{ color: '#EDEDED' }}>Full Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      placeholder="Your name"
+                      className="w-full p-3 rounded-lg"
+                      style={{ backgroundColor: '#121212', color: '#EDEDED', border: '1px solid #32CD32' }}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-2" style={{ color: '#EDEDED' }}>Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="your@email.com"
+                      className="w-full p-3 rounded-lg"
+                      style={{ backgroundColor: '#121212', color: '#EDEDED', border: '1px solid #32CD32' }}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-2" style={{ color: '#EDEDED' }}>Your Interests</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {['Planting', 'Conservation', 'Education', 'Volunteering'].map((interest) => (
+                        <button
+                          type="button"
+                          key={interest}
+                          onClick={() => handleInterestToggle(interest)}
+                          className={`py-2 px-3 rounded-lg text-sm ${formData.interests.includes(interest) ? 
+                            'bg-green-500/20 text-green-500' : 'text-gray-400'}`}
+                          style={{
+                            border: '1px solid rgba(50, 205, 50, 0.3)',
+                            transition: 'all 0.3s ease'
+                          }}
+                        >
+                          {interest}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsCommunityModalOpen(false)}
+                    className="flex-1 py-3 rounded-lg font-bold"
+                    style={{ 
+                      backgroundColor: 'transparent',
+                      color: '#32CD32',
+                      border: '2px solid #32CD32'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-3 rounded-lg font-bold"
+                    style={{ 
+                      backgroundColor: '#32CD32',
+                      color: '#121212'
+                    }}
+                  >
+                    Join Now
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Content */}
       <div 
@@ -90,6 +330,7 @@ export default function HeroSection() {
 
           <div className="flex gap-5 justify-center flex-wrap mt-10">
             <button
+              onClick={() => setIsTreeModalOpen(true)}
               style={{
                 fontWeight: 'bold',
                 padding: '1rem 2rem',
@@ -123,6 +364,7 @@ export default function HeroSection() {
             </button>
             
             <button
+              onClick={() => setIsCommunityModalOpen(true)}
               style={{
                 fontWeight: 'bold',
                 padding: '1rem 2rem',
